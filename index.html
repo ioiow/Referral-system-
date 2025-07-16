@@ -4,7 +4,61 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Реферальная система</title>
-    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .auth-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .auth-form input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .auth-form button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: none;
+            border-radius: 5px;
+            background: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+
+        .auth-form button:hover {
+            background: #45a049;
+        }
+
+        .info {
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .info p {
+            margin: 5px 0;
+        }
+
+        .info strong {
+            color: #4CAF50;
+        }
+    </style>
 </head>
 <body>
     <div class="auth-container">
@@ -20,9 +74,118 @@
             <p>За каждую подписку: <strong>56 центов</strong></p>
         </div>
     </div>
+
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
-    <script src="js/firebase.js"></script>
-    <script src="js/auth.js"></script>
+    <script>
+        // Инициализация Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCEiuwSztOHlrYlowK0pJJS2Qr70pfVTNs",
+            authDomain: "referral-system-350c1.firebaseapp.com",
+            databaseURL: "https://referral-system-350c1-default-rtdb.firebaseio.com",
+            projectId: "referral-system-350c1",
+            storageBucket: "referral-system-350c1.firebasestorage.app",
+            messagingSenderId: "856238997623",
+            appId: "1:856238997623:web:95770afa4a6c2a6d21c672",
+            measurementId: "G-7TX2MGGSFF"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginBtn = document.getElementById('loginBtn');
+            const registerBtn = document.getElementById('registerBtn');
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            
+            // Проверяем, есть ли сохраненные данные для входа
+            const savedUsername = localStorage.getItem('savedUsername');
+            const savedPassword = localStorage.getItem('savedPassword');
+            
+            if (savedUsername && savedPassword) {
+                usernameInput.value = savedUsername;
+                passwordInput.value = savedPassword;
+            }
+            
+            // Регистрация нового пользователя
+            registerBtn.addEventListener('click', function() {
+                const username = usernameInput.value.trim();
+                const password = passwordInput.value.trim();
+                
+                if (username && password) {
+                    // Проверяем, существует ли уже пользователь
+                    database.ref('users/' + username).once('value').then(snapshot => {
+                        if (snapshot.exists()) {
+                            alert('Этот логин уже занят!');
+                        } else {
+                            // Создаем нового пользователя
+                            const userData = {
+                                username: username,
+                                password: password,
+                                balance: 0,
+                                referrals: 0,
+                                rank: 1,
+                                referralCode: generateReferralCode(),
+                                referredBy: getUrlParameter('ref') || null,
+                                createdAt: firebase.database.ServerValue.TIMESTAMP
+                            };
+                            
+                            database.ref('users/' + username).set(userData)
+                                .then(() => {
+                                    localStorage.setItem('savedUsername', username);
+                                    localStorage.setItem('savedPassword', password);
+                                    alert('Регистрация успешна!');
+                                    window.location.href = 'dashboard.html?username=' + username;
+                                })
+                                .catch(error => {
+                                    alert('Ошибка регистрации: ' + error.message);
+                                });
+                        }
+                    });
+                } else {
+                    alert('Пожалуйста, введите логин и пароль!');
+                }
+            });
+            
+            // Вход существующего пользователя
+            loginBtn.addEventListener('click', function() {
+                const username = usernameInput.value.trim();
+                const password = passwordInput.value.trim();
+                
+                if (username && password) {
+                    database.ref('users/' + username).once('value').then(snapshot => {
+                        const userData = snapshot.val();
+                        
+                        if (userData && userData.password === password) {
+                            localStorage.setItem('savedUsername', username);
+                            localStorage.setItem('savedPassword', password);
+                            window.location.href = 'dashboard.html?username=' + username;
+                        } else {
+                            alert('Неверный логин или пароль!');
+                        }
+                    }).catch(error => {
+                        alert('Ошибка входа: ' + error.message);
+                    });
+                } else {
+                    alert('Пожалуйста, введите логин и пароль!');
+                }
+            });
+            
+            // Генерация реферального кода
+            function generateReferralCode() {
+                return Math.random().toString(36).substring(2, 8).toUpperCase();
+            }
+            
+            // Получение параметра из URL
+            function getUrlParameter(name) {
+                name = name.replace(/[[]/, '\\[').replace(/[\]]/, '\\]');
+                const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+                const results = regex.exec(location.search);
+                return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+            }
+        });
+    </script>
 </body>
 </html>
