@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header>
+            <h1>Личный кабинет</h1>
+            <button id="logoutBtn">Выйти</button>
+        </header>
+        
+        <div class="user-info">
+            <div class="balance-box">
+                <h2>Ваш баланс</h2>
+                <p class="balance">$0.00</p>
+            </div>
+            
+            <div class="referral-box">
+                <h2>Реферальная ссылка</h2>
+                <input type="text" id="referralLink" readonly>
+                <button id="copyLinkBtn">Копировать</button>
+            </div>
+            
+            <div class="stats-box">
+                <h2>Статистика</h2>
+                <p>Приглашено: <span id="referralsCount">0</span> человек</p>
+                <p>Ваш ранг: <span id="userRank">Новичок</span></p>
+                <div class="progress-bar">
+                    <div class="progress" id="rankProgress"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="channels-box">
+            <h2>Подпишитесь на наши каналы</h2>
+            <div class="channels-list">
+                <a href="https://t.me/IT_Programmer_io" target="_blank" class="channel-link">IT Programmer</a>
+                <a href="https://t.me/Kino_vek" target="_blank" class="channel-link">Кино век</a>
+                <a href="https://t.me/Iruma_Standoff2" target="_blank" class="channel-link">Iruma Standoff2</a>
+                <a href="https://t.me/findpersonbynickname" target="_blank" class="channel-link">Find Person</a>
+            </div>
+            <button id="checkSubscriptionsBtn">Проверить подписки</button>
+        </div>
+        
+        <div class="milestones">
+            <h2>Система рангов</h2>
+            <ul id="milestonesList">
+                <!-- Будут заполняться динамически -->
+            </ul>
+        </div>
+    </div>
+    
+    <div id="rewardAnimation" class="reward-animation hidden">
+        <h2>Поздравляем!</h2>
+        <p>Вы достигли нового ранга!</p>
+        <p>Ваш доход увеличен!</p>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+    <script src="js/firebase.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
